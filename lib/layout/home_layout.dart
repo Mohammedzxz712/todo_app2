@@ -16,14 +16,14 @@ class HomeLayout extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: AppBar(
         titleSpacing: 40,
-        title: Text('To Do List'),
+        title: const Text('To Do List'),
       ),
       body: provider.screen[provider.currentIndex],
       bottomNavigationBar: BottomAppBar(
         // color: Colors.white,
         notchMargin: 7,
 
-        shape: CircularNotchedRectangle(),
+        shape: const CircularNotchedRectangle(),
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
           elevation: 0,

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_app3/layout/my_provider.dart';
+import 'package:todo_app3/models/task_model.dart';
 
 class BottomSheetItem extends StatefulWidget {
   const BottomSheetItem({super.key});
@@ -15,25 +18,26 @@ class _BottomSheetItemState extends State<BottomSheetItem> {
   var selectedData = DateTime.now();
 
   Widget build(BuildContext context) {
+    var provider = Provider.of<MyProvider>(context);
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
+          const Text(
             'Add New Task',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           TextFormField(
             controller: taskTitleController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Task Title',
               enabledBorder: UnderlineInputBorder(),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           TextFormField(
@@ -43,14 +47,14 @@ class _BottomSheetItemState extends State<BottomSheetItem> {
               enabledBorder: UnderlineInputBorder(),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
-          Text(
+          const Text(
             'Select Date',
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
-          SizedBox(
+          const SizedBox(
             height: 15,
           ),
           InkWell(
@@ -72,17 +76,42 @@ class _BottomSheetItemState extends State<BottomSheetItem> {
             child: Text(
               selectedData.toString().substring(0, 10),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 15,
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              TaskModel task = TaskModel(
+                  title: taskTitleController.text,
+                  description: taskDescriptionController.text,
+                  date:
+                      DateUtils.dateOnly(selectedData).millisecondsSinceEpoch);
+              provider.addTask(task);
+
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text('Success'),
+                    content: Text('Task Added to FireBase'),
+                    actions: [
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                          child: Text('Close!'))
+                    ],
+                  );
+                },
+              );
+            },
             child: Text('Add Task'),
           )
         ],

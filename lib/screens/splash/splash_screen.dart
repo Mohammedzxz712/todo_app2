@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:todo_app3/layout/home_layout.dart';
 
+import '../tab_bar/tab_bar_screen.dart';
+
 class SplashScreen extends StatefulWidget {
   static const String routeName = 'splash';
   const SplashScreen({super.key});
@@ -16,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     Timer(Duration(seconds: 3), () {
       Navigator.pushNamedAndRemoveUntil(
-          context, HomeLayout.routeName, (route) => false);
+          context, TabBarScreen.routeName, (route) => false);
     });
     super.initState();
   }
