@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app3/layout/my_provider.dart';
@@ -88,6 +89,7 @@ class _BottomSheetItemState extends State<BottomSheetItem> {
           ElevatedButton(
             onPressed: () {
               TaskModel task = TaskModel(
+                  userId: FirebaseAuth.instance.currentUser!.uid,
                   title: taskTitleController.text,
                   description: taskDescriptionController.text,
                   date:

@@ -4,10 +4,12 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:todo_app3/models/edit_model.dart';
 import 'package:todo_app3/shared/style/colors.dart';
 
 import '../../layout/my_provider.dart';
 import '../../models/task_model.dart';
+import '../ediet/ediet_screen.dart';
 
 class TaskTab extends StatefulWidget {
   static const String routeName = 'task';
@@ -92,7 +94,15 @@ class _TaskTabState extends State<TaskTab> {
                   label: 'Delete',
                 ),
                 SlidableAction(
-                  onPressed: (context) {},
+                  onPressed: (context) {
+                    Navigator.pushNamed(context, EditScreen.routeName,
+                        arguments: EditModel(
+                            isDone: model.isDone,
+                            title: model.title,
+                            description: model.description,
+                            id: model.id,
+                            date: (model.date).toString()));
+                  },
                   backgroundColor: Color(0xFF21B7CA),
                   foregroundColor: Colors.white,
                   icon: Icons.edit,
@@ -133,9 +143,10 @@ class _TaskTabState extends State<TaskTab> {
                 InkWell(
                   onTap: () {
                     Provider.of<MyProvider>(context, listen: false).updateUser(
-                      description: '${model.description}',
-                      title: '${model.title}',
-                      id: '${model.id}',
+                      description: model.description,
+                      title: model.title,
+                      isDone: true,
+                      id: model.id,
                       date: model.date,
                     );
                   },

@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app3/layout/my_provider.dart';
+import 'package:todo_app3/screens/tab_bar/login.dart';
 
+import '../screens/tab_bar/tab_bar_screen.dart';
 import '../screens/task/bottom_sheet.dart';
 
 class HomeLayout extends StatelessWidget {
@@ -15,8 +19,20 @@ class HomeLayout extends StatelessWidget {
       extendBody: true,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+              Navigator.pushNamedAndRemoveUntil(
+                  context, TabBarScreen.routeName, (route) => false);
+            },
+            icon: const Icon(
+              Icons.login,
+            ),
+          ),
+        ],
         titleSpacing: 40,
-        title: const Text('To Do List'),
+        title: Text('To Do List ${provider.user?.name}'),
       ),
       body: provider.screen[provider.currentIndex],
       bottomNavigationBar: BottomAppBar(

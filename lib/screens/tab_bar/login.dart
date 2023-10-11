@@ -75,8 +75,7 @@ class LoginScreen extends StatelessWidget {
                           return null;
                         },
                         obscureText:
-                            Provider.of<MyProvider>(context, listen: false)
-                                .obscureText,
+                            Provider.of<MyProvider>(context).obscureText,
                         decoration: InputDecoration(
                           border: const OutlineInputBorder(),
                           labelText: 'Password',
@@ -86,9 +85,9 @@ class LoginScreen extends StatelessWidget {
                                 Provider.of<MyProvider>(context, listen: false)
                                     .changeVisiblePassword();
                               },
-                              child: Icon(Provider.of<MyProvider>(context,
-                                      listen: false)
-                                  .visible)),
+                              child: Icon(Provider.of<MyProvider>(
+                                context,
+                              ).visible)),
                         ),
                       ),
                       const SizedBox(
@@ -102,6 +101,8 @@ class LoginScreen extends StatelessWidget {
                               Provider.of<MyProvider>(context, listen: false)
                                   .login(emailController.text,
                                       passwordController.text, () {
+                                Provider.of<MyProvider>(context, listen: false)
+                                    .initUser();
                                 Navigator.pushNamedAndRemoveUntil(context,
                                     HomeLayout.routeName, (route) => false);
                               }, (error) {

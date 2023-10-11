@@ -131,7 +131,10 @@ class SignUpScreen extends StatelessWidget {
                           onPressed: () {
                             if (formKey.currentState!.validate()) {
                               Provider.of<MyProvider>(context, listen: false)
-                                  .createUser(emailController.text,
+                                  .createUser(
+                                      emailController.text,
+                                      phoneController.text,
+                                      nameController.text,
                                       passwordController.text, () {
                                 Navigator.pushNamed(
                                     context, LoginScreen.routeName);
@@ -162,7 +165,7 @@ class SignUpScreen extends StatelessWidget {
                             width: double.infinity,
                             child: const Center(
                               child: Text(
-                                'LOGIN',
+                                'SignUp',
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),

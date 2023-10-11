@@ -1,12 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:todo_app3/models/user_model.dart';
 import 'package:todo_app3/screens/setting/setting_tab.dart';
 import 'package:todo_app3/screens/task/task_tab.dart';
 
 import '../models/task_model.dart';
 
 class MyProvider extends ChangeNotifier {
+  UserModel? user;
+  User? firebaseUser;
+  MyProvider() {
+    firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
+      initUser();
+    }
+  }
+
+  void initUser() async {
+    firebaseUser = FirebaseAuth.instance.currentUser;
+    user = await getUser(firebaseUser!.uid);
+    notifyListeners();
+  }
+
   int currentIndex = 0;
   void changeBottomNav(int index) {
     currentIndex = index;
@@ -14,7 +30,8 @@ class MyProvider extends ChangeNotifier {
   }
 
   List<Widget> screen = [TaskTab(), SettingTab()];
-  CollectionReference<TaskModel> getCollection() {
+
+  CollectionReference<TaskModel> getTaskCollection() {
     return FirebaseFirestore.instance
         .collection("tasks")
         .withConverter<TaskModel>(
@@ -27,8 +44,27 @@ class MyProvider extends ChangeNotifier {
     );
   }
 
+  CollectionReference<UserModel> getUserCollection() {
+    return FirebaseFirestore.instance
+        .collection("users")
+        .withConverter<UserModel>(
+      fromFirestore: (snapshot, _) {
+        return UserModel.fromJson(snapshot.data()!);
+      },
+      toFirestore: (value, _) {
+        return value.toJson();
+      },
+    );
+  }
+
+  Future<void> addUser(UserModel userModel) {
+    var collection = getUserCollection();
+    var docsRef = collection.doc(userModel.id);
+    return docsRef.set(userModel);
+  }
+
   Future<void> addTask(TaskModel task) async {
-    var collection = getCollection();
+    var collection = getTaskCollection();
     var docRef = collection.doc();
 
     task.id = docRef.id;
@@ -56,7 +92,8 @@ class MyProvider extends ChangeNotifier {
   // }
 
   Stream<QuerySnapshot<TaskModel>> getTask(DateTime date) {
-    return getCollection()
+    return getTaskCollection()
+        .where("userId", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .where("date",
             isEqualTo: DateUtils.dateOnly(date).millisecondsSinceEpoch)
         .snapshots();
@@ -67,12 +104,14 @@ class MyProvider extends ChangeNotifier {
     required String title,
     required String id,
     required int date,
+    required bool isDone,
   }) {
     TaskModel model = TaskModel(
+      userId: FirebaseAuth.instance.currentUser!.uid,
       date: date,
       description: description,
       title: title,
-      isDone: true,
+      isDone: isDone,
       id: id,
     );
     FirebaseFirestore.instance
@@ -88,18 +127,21 @@ class MyProvider extends ChangeNotifier {
   }
 
   Future<void> deleteTask(String taskId) {
-    return getCollection().doc(taskId).delete();
+    return getTaskCollection().doc(taskId).delete();
   }
 
-  Future<void> createUser(String email, String password, Function onSuccess,
-      Function onError) async {
+  Future<void> createUser(String email, String phone, String name,
+      String password, Function onSuccess, Function onError) async {
     try {
       final credential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      credential.user?.sendEmailVerification();
+      //credential.user?.sendEmailVerification();
+      UserModel userModel = UserModel(
+          name: name, phone: phone, email: email, id: credential.user!.uid);
+      addUser(userModel);
       onSuccess();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -112,6 +154,13 @@ class MyProvider extends ChangeNotifier {
     }
   }
 
+  Future<UserModel?> getUser(String id) async {
+    DocumentSnapshot<UserModel> docData =
+        await getUserCollection().doc(id).get();
+
+    return docData.data();
+  }
+
   Future<void> login(String email, String password, Function onSuccess,
       Function onError) async {
     try {
@@ -119,11 +168,13 @@ class MyProvider extends ChangeNotifier {
         email: email,
         password: password,
       );
-      if (credential.user!.emailVerified) {
-        onSuccess();
-      } else {
-        onError("Please verify Email");
-      }
+      // if (credential.user!.emailVerified) {
+
+      onSuccess();
+
+      // } else {
+      //   onError("Please verify Email");
+      // }
     } on FirebaseAuthException catch (e) {
       if (e.code == "INVALID_LOGIN_CREDENTIALS") {
         onError("Wrong Email OR password");
